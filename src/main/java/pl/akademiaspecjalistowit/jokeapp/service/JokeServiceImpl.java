@@ -1,47 +1,38 @@
 package pl.akademiaspecjalistowit.jokeapp.service;
 
+import pl.akademiaspecjalistowit.jokeapp.data.InMemoryJokeRepository;
 import pl.akademiaspecjalistowit.jokeapp.data.Joke;
 
 import java.util.List;
 import java.util.Random;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class JokeServiceImpl implements JokeService {
 
-    List<Joke> jokes;
+    private InMemoryJokeRepository inMemoryJokeRepository;
 
     public JokeServiceImpl() {
-        this.jokes = List.of(
-                new Joke("What is an object-oriented way to make a fortune? Inheritance",
-                        "Programmers"));
+        this.inMemoryJokeRepository = new InMemoryJokeRepository();
     }
 
     @Override
     public Joke getJoke() {
         Random rand = new Random();
+        List<Joke> anyJokes = inMemoryJokeRepository.getAllJokes();
 
-        return jokes.get(rand.nextInt(jokes.size()));
+        return anyJokes.get(rand.nextInt(anyJokes.size()));
     }
 
     @Override
     public Joke getJoke(String category) {
-        List<Joke> jokesByCategory = jokes
-                .stream()
-                .filter(compareCategories(category))
-                .collect(Collectors.toList());
-
         Random rand = new Random();
+        List<Joke> jokesByCategory = inMemoryJokeRepository.getAllByCategory(category);
 
         return jokesByCategory.get(rand.nextInt(jokesByCategory.size()));
     }
 
-    private static Predicate<Joke> compareCategories(String category) {
-        return c -> c.getCategory().equals(category);
-    }
-
     public List<String> showAvailableCategories() {
-        return jokes
+        return inMemoryJokeRepository.getAllJokes()
                 .stream()
                 .map(Joke::getCategory)
                 .distinct()
