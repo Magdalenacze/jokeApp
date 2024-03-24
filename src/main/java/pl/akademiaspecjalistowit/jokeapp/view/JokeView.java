@@ -9,16 +9,28 @@ import java.util.Scanner;
 public class JokeView {
 
     private Scanner scanner;
-    private JokeServiceImpl jokeServiceImpl;
+    List<String> sources;
 
     public JokeView() {
         this.scanner = new Scanner(System.in);
-        this.jokeServiceImpl = new JokeServiceImpl();
+        this.sources = List.of(
+                "Pool of jokes from the JokeApp application",
+                "Pool of jokes from the Internet");
     }
 
     public void run() {
         int choiceFromTheUserMenu = -1;
         int choiceFromTheCategoryList = -1;
+        int choiceFromTheSourceList = -1;
+
+        showSourceList();
+        try {
+            choiceFromTheSourceList = scanner.nextInt();
+            scanner.nextLine();
+        } catch (InputMismatchException ex) {
+            scanner.nextLine();
+        }
+        JokeServiceImpl jokeServiceImpl = new JokeServiceImpl(choiceFromTheSourceList);
 
         do {
             showUserMenu();
@@ -30,18 +42,18 @@ public class JokeView {
             }
             switch (choiceFromTheUserMenu) {
                 case 1:
-                    wantARandomJokeFromAnyCategory();
+                    wantARandomJokeFromAnyCategory(jokeServiceImpl);
                     break;
                 case 2:
-                    showCategoryList();
+                    showCategoryList(jokeServiceImpl);
                     try {
                         choiceFromTheCategoryList = scanner.nextInt();
                         scanner.nextLine();
                     } catch (InputMismatchException ex) {
                         scanner.nextLine();
                     }
-                    wantARandomJokeFromSpecificCategory
-                            (jokeServiceImpl.showAvailableCategories().get(choiceFromTheCategoryList - 1));
+                    wantARandomJokeFromSpecificCategory(jokeServiceImpl.showAvailableCategories()
+                            .get(choiceFromTheCategoryList - 1), jokeServiceImpl);
                     break;
                 case 0:
                     exitingTheApplication();
@@ -54,21 +66,29 @@ public class JokeView {
         scanner.close();
     }
 
-    private void showUserMenu() {
+    private void showSourceList() {
         System.out.println("User, welcome to JokeApp and have fun!\n" +
-                "You can choose from the following options:\n" +
+                "You can choose from the following options:");
+        for (int i = 0; i < sources.size(); i++) {
+            System.out.println((i + 1) + ". " + sources.get(i));
+        }
+        System.out.println("Enter the source number of the joke pool you want to use: ");
+    }
+
+    private void showUserMenu() {
+        System.out.println("Select further options:\n" +
                 "If you want to draw a joke from any category - enter 1:\n" +
                 "If you want to randomly select a joke from a specific category - enter 2:\n" +
                 "Logout - enter 0:");
     }
 
-    private void wantARandomJokeFromAnyCategory() {
+    private void wantARandomJokeFromAnyCategory(JokeServiceImpl jokeServiceImpl) {
         System.out.println("I'm displaying a joke for a random category...");
         System.out.println(jokeServiceImpl.getJoke());
         System.out.println();
     }
 
-    private void showCategoryList() {
+    private void showCategoryList(JokeServiceImpl jokeServiceImpl) {
         List<String> categories = jokeServiceImpl.showAvailableCategories();
 
         for (int i = 0; i < categories.size(); i++) {
@@ -77,7 +97,7 @@ public class JokeView {
         System.out.println("Enter the category number: ");
     }
 
-    private void wantARandomJokeFromSpecificCategory(String category) {
+    private void wantARandomJokeFromSpecificCategory(String category, JokeServiceImpl jokeServiceImpl) {
         System.out.println("I'm displaying a random joke from the category " + category + "...");
         System.out.println(jokeServiceImpl.getJoke(category));
         System.out.println();
