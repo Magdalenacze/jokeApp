@@ -42,7 +42,6 @@ public class JokeApiProvider implements JokeProvider {
             
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
             return JokeDtoMapper.toJoke(objectMapper.readValue(response.body(), JokeDto.class));
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();

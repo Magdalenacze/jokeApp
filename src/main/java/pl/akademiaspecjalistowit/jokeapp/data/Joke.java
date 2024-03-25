@@ -1,8 +1,9 @@
 package pl.akademiaspecjalistowit.jokeapp.data;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Joke {
+public class Joke implements Serializable {
 
     private UUID id;
     private String content;

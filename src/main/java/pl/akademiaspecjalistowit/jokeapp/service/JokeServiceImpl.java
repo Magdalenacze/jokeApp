@@ -1,6 +1,7 @@
 package pl.akademiaspecjalistowit.jokeapp.service;
 
 import pl.akademiaspecjalistowit.jokeapp.data.Joke;
+import pl.akademiaspecjalistowit.jokeapp.data.SourceType;
 
 import java.util.List;
 
@@ -8,16 +9,19 @@ public class JokeServiceImpl implements JokeService {
 
     private JokeProvider jokeProvider;
 
-    public JokeServiceImpl(int choiceFromTheSourceList) {
-        switch (choiceFromTheSourceList) {
-            case 1:
-                this.jokeProvider = new JokeDataProvider();
+    public JokeServiceImpl(SourceType sourceType) {
+        switch (sourceType) {
+            case IN_MEMORY:
+                this.jokeProvider = new JokeDataProvider(SourceType.IN_MEMORY);
                 break;
-            case 2:
+            case API:
                 this.jokeProvider = new JokeApiProvider();
                 break;
+            case FILE:
+                this.jokeProvider = new JokeDataProvider(SourceType.FILE);
+                break;
             default:
-                this.jokeProvider = new JokeDataProvider();
+                this.jokeProvider = new JokeDataProvider(SourceType.IN_MEMORY);
                 break;
         }
     }

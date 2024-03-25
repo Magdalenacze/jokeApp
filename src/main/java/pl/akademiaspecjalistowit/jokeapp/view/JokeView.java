@@ -1,7 +1,9 @@
 package pl.akademiaspecjalistowit.jokeapp.view;
 
+import pl.akademiaspecjalistowit.jokeapp.data.SourceType;
 import pl.akademiaspecjalistowit.jokeapp.service.JokeServiceImpl;
 
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -15,7 +17,8 @@ public class JokeView {
         this.scanner = new Scanner(System.in);
         this.sources = List.of(
                 "Pool of jokes from the JokeApp application",
-                "Pool of jokes from the Internet");
+                "Pool of jokes from the Internet",
+                "Pool of jokes from additional file");
     }
 
     public void run() {
@@ -30,7 +33,8 @@ public class JokeView {
         } catch (InputMismatchException ex) {
             scanner.nextLine();
         }
-        JokeServiceImpl jokeServiceImpl = new JokeServiceImpl(choiceFromTheSourceList);
+
+        JokeServiceImpl jokeServiceImpl = getSourceTypeByUserChoice(choiceFromTheSourceList);
 
         do {
             showUserMenu();
@@ -66,6 +70,17 @@ public class JokeView {
         scanner.close();
     }
 
+    private static JokeServiceImpl getSourceTypeByUserChoice(int choiceFromTheSourceList) {
+        final int choice = choiceFromTheSourceList;
+
+        JokeServiceImpl jokeServiceImpl = new JokeServiceImpl(Arrays
+                .stream(SourceType.values())
+                .filter(p -> p.getChoiceFromTheSourceList() == choice)
+                .findFirst()
+                .get());
+        return jokeServiceImpl;
+    }
+
     private void showSourceList() {
         System.out.println("User, welcome to JokeApp and have fun!\n" +
                 "You can choose from the following options:");
@@ -90,7 +105,6 @@ public class JokeView {
 
     private void showCategoryList(JokeServiceImpl jokeServiceImpl) {
         List<String> categories = jokeServiceImpl.showAvailableCategories();
-
         for (int i = 0; i < categories.size(); i++) {
             System.out.println((i + 1) + ". " + categories.get(i));
         }
