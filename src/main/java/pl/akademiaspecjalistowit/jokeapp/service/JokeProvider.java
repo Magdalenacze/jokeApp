@@ -10,5 +10,5 @@ public interface JokeProvider {
 
     Joke getJokeByCategory(String category);
 
-    List<String> showAvailableCategories();
+    List<String> getAvailableJokeCategories();
 }

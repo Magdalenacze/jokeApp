@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryJokeRepository implements JokeRepository {
 
-    List<Joke> jokes;
+   private final List<Joke> jokes;
 
     public InMemoryJokeRepository() {
         this.jokes = List.of(

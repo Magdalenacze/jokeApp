@@ -8,40 +8,43 @@ import java.util.stream.Collectors;
 
 public class JokeDataProvider implements JokeProvider {
 
-    private JokeRepository jokeRepository;
+    private final List<JokeRepository> jokeRepositories;
+    private static long counter = 0;
 
-    public JokeDataProvider(SourceType sourceType) {
-        switch (sourceType) {
-            case IN_MEMORY:
-                jokeRepository = new InMemoryJokeRepository();
-                break;
-            case FILE:
-                jokeRepository = new FileJokeRepository();
-                break;
-            default:
-                jokeRepository = new InMemoryJokeRepository();
-        }
+    public JokeDataProvider(List<JokeRepository> jokeRepositories) {
+        this.jokeRepositories = jokeRepositories;
     }
 
     @Override
     public Joke getJoke() {
         Random rand = new Random();
-        List<Joke> anyJokes = jokeRepository.getAllJokes();
-        return anyJokes.get(rand.nextInt(anyJokes.size()));
+        List<Joke> anyJokes = getJokeRepository().getAllJokes();
+        counter++;
+        return anyJokes.get(selectJokeIndex(rand, anyJokes));
     }
 
     @Override
     public Joke getJokeByCategory(String category) {
         Random rand = new Random();
-        List<Joke> jokesByCategory = jokeRepository.getAllByCategory(category);
-        return jokesByCategory.get(rand.nextInt(jokesByCategory.size()));
+        List<Joke> jokesByCategory = getJokeRepository().getAllByCategory(category);
+        counter++;
+        return jokesByCategory.get(selectJokeIndex(rand, jokesByCategory));
     }
 
-    public List<String> showAvailableCategories() {
-        return jokeRepository.getAllJokes()
+    @Override
+    public List<String> getAvailableJokeCategories() {
+        return getJokeRepository().getAllJokes()
                 .stream()
                 .map(Joke::getCategory)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private JokeRepository getJokeRepository() {
+        return jokeRepositories.get((int) counter % jokeRepositories.size());
+    }
+
+    private static int selectJokeIndex(Random rand, List<Joke> anyJokes) {
+        return rand.nextInt(anyJokes.size());
     }
 }
