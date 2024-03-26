@@ -1,35 +1,31 @@
 package pl.akademiaspecjalistowit.jokeapp;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.net.URI;
+import pl.akademiaspecjalistowit.jokeapp.data.FileJokeRepository;
+import pl.akademiaspecjalistowit.jokeapp.data.InMemoryJokeRepository;
+import pl.akademiaspecjalistowit.jokeapp.data.JokeRepository;
+import pl.akademiaspecjalistowit.jokeapp.service.*;
+import pl.akademiaspecjalistowit.jokeapp.view.JokeView;
+
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.List;
 
 public class JokeAppApplication {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-
-        HttpClient httpClient = HttpClient.newHttpClient();
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .GET()
-            .uri(URI.create("https://v2.jokeapi.dev/joke/Any"))
-            .build();
-
-        HttpResponse<String> response = httpClient.send(
-            request, HttpResponse.BodyHandlers.ofString());
-
-        System.out.println(response.body());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        JokeDto jokeDto = objectMapper.readValue(response.body(), JokeDto.class);
-
-        System.out.println(jokeDto);
+    public static void main(String[] args) {
+        JokeService jokeService = initiateApplicationContext();
+        JokeView jokeView = new JokeView(jokeService);
+        jokeView.run();
     }
 
+    private static JokeService initiateApplicationContext() {
+        List<JokeRepository> jokeRepositories = List.of(
+                new InMemoryJokeRepository(),
+                new FileJokeRepository());
+        List<JokeProvider> jokeProviders = List.of(
+                new JokeApiProvider(HttpClient.newHttpClient(), new ObjectMapper()),
+                new JokeDataProvider(jokeRepositories));
+        JokeService jokeService = new JokeServiceImpl(jokeProviders);
+        return jokeService;
+    }
 }
