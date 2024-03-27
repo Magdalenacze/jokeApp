@@ -12,6 +12,9 @@ public class JokeDataProvider implements JokeProvider {
     private static long counter = 0;
 
     public JokeDataProvider(List<JokeRepository> jokeRepositories) {
+        if (jokeRepositories == null || jokeRepositories.isEmpty()) {
+            throw new RuntimeException("Required at least one JokeRepository for the application to run!");
+        }
         this.jokeRepositories = jokeRepositories;
     }
 
